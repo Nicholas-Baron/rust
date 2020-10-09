@@ -250,12 +250,6 @@ impl<'tcx> EnclosingBreakables<'tcx> {
     }
 }
 
-impl Default for EnclosingBreakables<'_> {
-    fn default() -> Self {
-        Self { stack: Default::default(), by_id: Default::default() }
-    }
-}
-
 pub fn provide(providers: &mut Providers) {
     method::provide(providers);
     *providers = Providers {
