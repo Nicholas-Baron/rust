@@ -225,12 +225,17 @@ pub struct BreakableCtxt<'tcx> {
     coerce: Option<DynamicCoerceMany<'tcx>>,
 }
 
+#[derive(Default)]
 pub struct EnclosingBreakables<'tcx> {
     stack: Vec<BreakableCtxt<'tcx>>,
     by_id: HirIdMap<usize>,
 }
 
 impl<'tcx> EnclosingBreakables<'tcx> {
+    fn new() -> Self {
+        Default::default()
+    }
+
     fn find_breakable(&mut self, target_id: hir::HirId) -> &mut BreakableCtxt<'tcx> {
         self.opt_find_breakable(target_id).unwrap_or_else(|| {
             bug!("could not find enclosing breakable with id {}", target_id);

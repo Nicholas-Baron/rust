@@ -170,10 +170,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
             ps: RefCell::new(UnsafetyState::function(hir::Unsafety::Normal, hir::CRATE_HIR_ID)),
             diverges: Cell::new(Diverges::Maybe),
             has_errors: Cell::new(false),
-            enclosing_breakables: RefCell::new(EnclosingBreakables {
-                stack: Vec::new(),
-                by_id: Default::default(),
-            }),
+            enclosing_breakables: RefCell::new(EnclosingBreakables::new()),
             inh,
         }
     }
