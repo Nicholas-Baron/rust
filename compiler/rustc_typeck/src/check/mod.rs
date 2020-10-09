@@ -232,10 +232,6 @@ pub struct EnclosingBreakables<'tcx> {
 }
 
 impl<'tcx> EnclosingBreakables<'tcx> {
-    fn new() -> Self {
-        Default::default()
-    }
-
     fn find_breakable(&mut self, target_id: hir::HirId) -> &mut BreakableCtxt<'tcx> {
         self.opt_find_breakable(target_id).unwrap_or_else(|| {
             bug!("could not find enclosing breakable with id {}", target_id);
