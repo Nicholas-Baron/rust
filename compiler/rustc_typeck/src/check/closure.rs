@@ -601,7 +601,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
     fn deduce_future_output_from_obligations(&self, expr_def_id: DefId) -> Option<Ty<'tcx>> {
         debug!("deduce_future_output_from_obligations(expr_def_id={:?})", expr_def_id);
 
-        let ret_coercion = self.ret_coercion.as_ref().unwrap_or_else(|| {
+        let ret_coercion = self.ret_type_coercion.coercion.as_ref().unwrap_or_else(|| {
             span_bug!(self.tcx.def_span(expr_def_id), "async fn generator outside of a fn")
         });
 

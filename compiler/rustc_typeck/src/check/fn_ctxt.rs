@@ -4,13 +4,14 @@
 // Splitting this file may involve abstracting functionality into other files.
 
 use super::callee::{self, DeferredCallResolution};
-use super::coercion::{CoerceMany, DynamicCoerceMany};
+use super::coercion::CoerceMany;
 use super::method::{self, MethodCallee, SelfSource};
 use super::Expectation::*;
 use super::TupleArgumentsFlag::*;
 use super::{
     potentially_plural_count, struct_span_err, BreakableCtxt, Diverges, EnclosingBreakables,
-    Expectation, FallbackMode, Inherited, LocalTy, Needs, TupleArgumentsFlag, UnsafetyState,
+    Expectation, FallbackMode, Inherited, LocalTy, Needs, RetTypeCoercion, TupleArgumentsFlag,
+    UnsafetyState,
 };
 use crate::astconv::{
     AstConv, ExplicitLateBound, GenericArgCountMismatch, GenericArgCountResult, PathSeg,
@@ -83,28 +84,12 @@ pub struct FnCtxt<'a, 'tcx> {
     // if type checking is run in parallel.
     err_count_on_creation: usize,
 
-    /// If `Some`, this stores coercion information for returned
-    /// expressions. If `None`, this is in a context where return is
-    /// inappropriate, such as a const expression.
-    ///
-    /// This is a `RefCell<DynamicCoerceMany>`, which means that we
-    /// can track all the return expressions and then use them to
-    /// compute a useful coercion from the set, similar to a match
-    /// expression or other branching context. You can use methods
-    /// like `expected_ty` to access the declared return type (if
-    /// any).
-    pub(super) ret_coercion: Option<RefCell<DynamicCoerceMany<'tcx>>>,
-
-    pub(super) ret_coercion_impl_trait: Option<Ty<'tcx>>,
-
-    pub(super) ret_type_span: Option<Span>,
-
     /// Used exclusively to reduce cost of advanced evaluation used for
     /// more helpful diagnostics.
     pub(super) in_tail_expr: bool,
 
-    /// First span of a return site that we find. Used in error messages.
-    pub(super) ret_coercion_span: RefCell<Option<Span>>,
+    /// Groups data relating to the return type of the FnCtxt
+    pub(super) ret_type_coercion: RetTypeCoercion<'tcx>,
 
     pub(super) resume_yield_tys: Option<(Ty<'tcx>, Ty<'tcx>)>,
 
@@ -161,11 +146,8 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
             body_id,
             param_env,
             err_count_on_creation: inh.tcx.sess.err_count(),
-            ret_coercion: None,
-            ret_coercion_impl_trait: None,
-            ret_type_span: None,
+            ret_type_coercion: Default::default(),
             in_tail_expr: false,
-            ret_coercion_span: RefCell::new(None),
             resume_yield_tys: None,
             ps: RefCell::new(UnsafetyState::function(hir::Unsafety::Normal, hir::CRATE_HIR_ID)),
             diverges: Cell::new(Diverges::Maybe),

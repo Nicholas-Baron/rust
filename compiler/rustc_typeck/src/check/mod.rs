@@ -85,6 +85,7 @@ mod op;
 mod pat;
 mod place_op;
 mod regionck;
+mod ret_type_coercion;
 mod upvar;
 mod wfcheck;
 pub mod writeback;
@@ -98,6 +99,7 @@ pub use diverges::Diverges;
 pub use expectation::Expectation;
 pub use fn_ctxt::FnCtxt;
 pub use inherited::{Inherited, InheritedBuilder};
+use ret_type_coercion::RetTypeCoercion;
 
 use crate::astconv::AstConv;
 use crate::check::gather_locals::GatherLocalsVisitor;

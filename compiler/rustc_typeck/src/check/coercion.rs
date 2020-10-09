@@ -1458,7 +1458,9 @@ impl<'tcx, 'exprs, E: AsCoercionSite> CoerceMany<'tcx, 'exprs, E> {
                 fn_output = Some(&fn_decl.output); // `impl Trait` return type
             }
         }
-        if let (Some(sp), Some(fn_output)) = (fcx.ret_coercion_span.borrow().as_ref(), fn_output) {
+        if let (Some(sp), Some(fn_output)) =
+            (fcx.ret_type_coercion.coercion_span.borrow().as_ref(), fn_output)
+        {
             self.add_impl_trait_explanation(&mut err, cause, fcx, expected, *sp, fn_output);
         }
         err

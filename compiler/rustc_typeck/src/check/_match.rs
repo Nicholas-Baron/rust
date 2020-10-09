@@ -121,7 +121,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
             // provide a structured suggestion in that case.
             let opt_suggest_box_span = match (
                 orig_expected,
-                self.ret_coercion_impl_trait.map(|ty| (self.body_id.owner, ty)),
+                self.ret_type_coercion.coercion_impl_trait.map(|ty| (self.body_id.owner, ty)),
             ) {
                 (Expectation::ExpectHasType(expected), Some((id, ty)))
                     if self.in_tail_expr && self.can_coerce(arm_ty, expected) =>
@@ -164,7 +164,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
                     }
                     // If all the obligations hold (or there are no obligations) the tail expression
                     // we can suggest to return a boxed trait object instead of an opaque type.
-                    if suggest_box { self.ret_type_span } else { None }
+                    if suggest_box { self.ret_type_coercion.type_span } else { None }
                 }
                 _ => None,
             };

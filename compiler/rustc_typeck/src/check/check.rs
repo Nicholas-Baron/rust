@@ -74,10 +74,10 @@ pub(super) fn check_fn<'a, 'tcx>(
     let revealed_ret_ty =
         fcx.instantiate_opaque_types_from_value(fn_id, &declared_ret_ty, decl.output.span());
     debug!("check_fn: declared_ret_ty: {}, revealed_ret_ty: {}", declared_ret_ty, revealed_ret_ty);
-    fcx.ret_coercion = Some(RefCell::new(CoerceMany::new(revealed_ret_ty)));
-    fcx.ret_type_span = Some(decl.output.span());
+    fcx.ret_type_coercion.coercion = Some(RefCell::new(CoerceMany::new(revealed_ret_ty)));
+    fcx.ret_type_coercion.type_span = Some(decl.output.span());
     if let ty::Opaque(..) = declared_ret_ty.kind() {
-        fcx.ret_coercion_impl_trait = Some(declared_ret_ty);
+        fcx.ret_type_coercion.coercion_impl_trait = Some(declared_ret_ty);
     }
     fn_sig = tcx.mk_fn_sig(
         fn_sig.inputs().iter().cloned(),
@@ -203,7 +203,7 @@ pub(super) fn check_fn<'a, 'tcx>(
     //
     // which would then cause this return type to become `u32`, not
     // `!`).
-    let coercion = fcx.ret_coercion.take().unwrap().into_inner();
+    let coercion = fcx.ret_type_coercion.coercion.take().unwrap().into_inner();
     let mut actual_return_ty = coercion.complete(&fcx);
     if actual_return_ty.is_never() {
         actual_return_ty = fcx.next_diverging_ty_var(TypeVariableOrigin {

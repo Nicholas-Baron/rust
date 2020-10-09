@@ -664,17 +664,17 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         expr_opt: Option<&'tcx hir::Expr<'tcx>>,
         expr: &'tcx hir::Expr<'tcx>,
     ) -> Ty<'tcx> {
-        if self.ret_coercion.is_none() {
+        if self.ret_type_coercion.coercion.is_none() {
             self.tcx.sess.emit_err(ReturnStmtOutsideOfFnBody { span: expr.span });
         } else if let Some(ref e) = expr_opt {
-            if self.ret_coercion_span.borrow().is_none() {
-                *self.ret_coercion_span.borrow_mut() = Some(e.span);
+            if self.ret_type_coercion.coercion_span.borrow().is_none() {
+                *self.ret_type_coercion.coercion_span.borrow_mut() = Some(e.span);
             }
             self.check_return_expr(e);
         } else {
-            let mut coercion = self.ret_coercion.as_ref().unwrap().borrow_mut();
-            if self.ret_coercion_span.borrow().is_none() {
-                *self.ret_coercion_span.borrow_mut() = Some(expr.span);
+            let mut coercion = self.ret_type_coercion.coercion.as_ref().unwrap().borrow_mut();
+            if self.ret_type_coercion.coercion_span.borrow().is_none() {
+                *self.ret_type_coercion.coercion_span.borrow_mut() = Some(expr.span);
             }
             let cause = self.cause(expr.span, ObligationCauseCode::ReturnNoExpression);
             if let Some((fn_decl, _)) = self.get_fn_decl(expr.hir_id) {
@@ -700,7 +700,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
     }
 
     pub(super) fn check_return_expr(&self, return_expr: &'tcx hir::Expr<'tcx>) {
-        let ret_coercion = self.ret_coercion.as_ref().unwrap_or_else(|| {
+        let ret_coercion = self.ret_type_coercion.coercion.as_ref().unwrap_or_else(|| {
             span_bug!(return_expr.span, "check_return_expr called outside fn body")
         });
 
